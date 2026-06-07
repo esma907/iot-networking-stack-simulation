@@ -1,0 +1,75 @@
+CONTRIBUTION LOG
+================
+Course  : COM0453 — Internet of Things
+Track   : Track B (Book Examples in Netualizer)
+Student : Esma Sümer
+Date    : June 2026
+
+------------------------------------------------------------------------
+TEAM STRUCTURE
+------------------------------------------------------------------------
+This project was completed individually (single-member group).
+All components listed below were designed, implemented, and documented
+by Esma Sümer.
+
+------------------------------------------------------------------------
+CONTRIBUTIONS BY COMPONENT
+------------------------------------------------------------------------
+
+Example 1 — TCP Client (TcpClient.lua)
+  - Designed the TCP layer chain (phy → ethernet → ip → tcp → raw)
+  - Configured DNS resolution and HTTP GET request in Netualizer
+  - Observed and documented output (DNS → IP mapping, TCP connection)
+  - Written analysis: latency trade-offs, DNS caching rationale
+
+Example 2 — MQTT Sensor (MQTTSensor.lua)
+  - Configured static IP (192.168.21.20) to prevent gateway-drop errors
+  - Set up MQTT broker connection to 91.121.93.94
+  - Implemented and ran continuous publish loop (dataup 42)
+  - Captured timestamped Events panel output
+  - Written analysis: QoS trade-offs, broker architecture, static vs DHCP
+
+Example 3 — CoAP Client (CoAPClient.lua)
+  - Built CoAP over UDP layer chain (phy → ethernet → ip → udp → coap)
+  - Formed coap:// URI and dispatched GET to simulated temperature sensor
+  - Documented binary CoAP packet structure and connectionless dispatch
+  - Written analysis: CoAP vs HTTP comparison, CON vs NON messages
+
+Example 4 — UDP Sender (UdpSender.lua)
+  - Configured raw UDP datagram sender (192.168.21.30:5000 → :6000)
+  - Verified immediate dispatch with done(0) exit code
+  - Written analysis: latency comparison with TCP, use case trade-offs
+
+Example 5 — mDNS Responder (mDNS.lua)
+  - Set up mDNS responder daemon on port 5353
+  - Issued PTR query for _sip._udp.local
+  - Documented DNS-SD service advertisement behaviour
+  - Written analysis: zero-configuration networking, fleet deployment
+
+Supplementary — Data Logging & Timestamp Verification
+  - Captured and analysed Netualizer Events panel during MQTT session
+  - Verified timestamp format, ordering, and non-duplication
+  - Documented production pipeline recommendations (Quickwit + Grafana)
+
+Supplementary — Failure Injection (3 scenarios)
+  - Scenario 1: Induced IP gateway omission error, documented stack response
+  - Scenario 2: Triggered "No agents found" by disconnecting agent
+  - Scenario 3: Triggered LoRa PHY fault by removing RYLR896 transceiver
+  - Written analysis for all three failure modes
+
+Report
+  - Wrote full technical report in LaTeX (850 lines, .tex + .pdf)
+  - Created all figures, tables, protocol comparison matrix
+  - Wrote security threat model section
+  - Wrote reproducibility and bibliography sections
+
+------------------------------------------------------------------------
+DECLARATION
+------------------------------------------------------------------------
+I confirm that all work described above is my own. Netualizer was used
+as the simulation environment. The report was written independently.
+AI tools were used as supporting writing assistance in accordance with
+the course academic integrity policy.
+
+Esma Sümer
+June 2026
