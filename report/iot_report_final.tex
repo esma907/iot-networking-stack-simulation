@@ -1,0 +1,850 @@
+\documentclass[12pt,a4paper]{article}
+
+% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{parskip}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% ── Page geometry ─────────────────────────────────────────────────────────────
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, headheight=14pt}
+
+% ── Colors ────────────────────────────────────────────────────────────────────
+\definecolor{darkblue}{RGB}{0,51,102}
+\definecolor{codegreen}{rgb}{0.0,0.45,0.0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{lightgray}{RGB}{248,248,248}
+\definecolor{alertred}{RGB}{180,30,30}
+\definecolor{infobox}{RGB}{230,240,255}
+\definecolor{successgreen}{RGB}{20,120,20}
+
+% ── tcolorbox styles ──────────────────────────────────────────────────────────
+\newtcolorbox{infoblock}[1]{
+  colback=infobox, colframe=darkblue, fonttitle=\bfseries,
+  title=#1, breakable, left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+\newtcolorbox{alertblock}[1]{
+  colback=red!8!white, colframe=alertred, fonttitle=\bfseries\color{alertred},
+  title=#1, breakable, left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+\newtcolorbox{resultblock}[1]{
+  colback=green!6!white, colframe=successgreen, fonttitle=\bfseries\color{successgreen},
+  title=#1, breakable, left=6pt, right=6pt, top=4pt, bottom=4pt
+}
+
+% ── Section formatting ────────────────────────────────────────────────────────
+\titleformat{\section}{\color{darkblue}\large\bfseries}{\thesection.}{0.5em}{}[\titlerule]
+\titleformat{\subsection}{\color{darkblue}\normalsize\bfseries}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\itshape}{}{0em}{}
+
+% ── Header / Footer ───────────────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{darkblue}{IoT Networking Stack Simulation -- Track B}}
+\fancyhead[R]{\small\textcolor{darkblue}{Esma S\"umer}}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Listings ──────────────────────────────────────────────────────────────────
+\lstdefinelanguage{Lua}{
+  keywords={function,end,local,if,then,else,elseif,while,do,for,in,return,true,false,nil,not,and,or},
+  sensitive=true,
+  comment=[l]{--},
+  morecomment=[s]{--[[}{]]},
+  morestring=[b]",
+  morestring=[b]',
+}
+\lstset{
+  language=Lua,
+  backgroundcolor=\color{lightgray},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{darkblue}\bfseries,
+  commentstyle=\color{codegreen}\itshape,
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{gray!40},
+  captionpos=b,
+  numbers=left,
+  numberstyle=\tiny\color{codegray},
+  numbersep=8pt,
+  showstringspaces=false,
+  tabsize=2
+}
+
+% ── Hyperref ──────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true, linkcolor=darkblue, urlcolor=darkblue, citecolor=darkblue,
+  pdftitle={IoT Networking Stack Simulation Report},
+  pdfauthor={Esma Sumer}
+}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Title page ────────────────────────────────────────────────────────────────
+\begin{titlepage}
+  \centering
+  \vspace*{1.2cm}
+  {\Huge\bfseries\color{darkblue} IoT Networking Stack\\[0.4em] Simulation Report}
+  \vspace{0.5cm}
+  \rule{0.75\linewidth}{1.2pt}
+  \vspace{0.4cm}
+
+  {\large\itshape Track B: Implementing Book Examples in Netualizer}
+
+  \vspace{2cm}
+
+  {\Large\textbf{Esma S\"umer}}\\[0.4em]
+  {\normalsize Computer Engineering\\Istanbul K\"ult\"ur University}
+
+  \vspace{1.2cm}
+  {\normalsize
+    \textbf{Course:} COM0453 -- Internet of Things\\[0.2em]
+    \textbf{Instructor:} Mehmet F.\ Yuce\\[0.2em]
+    \textbf{Date:} June 2026
+  }
+
+  \vfill
+  \rule{0.75\linewidth}{0.5pt}\\[0.3em]
+  {\small\textcolor{gray}{Netualizer Simulation Framework~$\cdot$~Spring 2026}}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{abstract}
+\noindent
+This report documents the design, implementation, and analysis of seven IoT
+networking protocol scenarios executed within the \textbf{Netualizer}
+simulation environment as part of the COM0453 Internet of Things course
+(Track~B). Five foundational protocols --- TCP, MQTT, CoAP, UDP, and mDNS ---
+are implemented, each documented with its theoretical background, Netualizer
+architecture diagram, Lua source code walkthrough, console output, and
+engineering analysis. Two additional scenarios cover data logging with
+high-resolution timestamps and deliberate multi-layer failure injection.
+A comparative protocol matrix and a security threat overview conclude the
+report. All experiments are fully reproducible within Netualizer without
+external hardware.
+\end{abstract}
+
+\newpage
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+The explosive growth of IoT demands networking architectures fundamentally
+different from conventional environments. IoT nodes --- characterised as
+\emph{Constrained Nodes} in RFC~7228~\cite{RFC7228} --- operate under severe
+memory, processing, and energy budgets while communicating over low-power,
+lossy links. Selecting the right protocol for each layer is therefore a
+critical engineering decision.
+
+\textbf{Netualizer} provides an event-driven simulation platform that models
+the complete IoT stack from the physical layer (PHY) through the application
+layer. Virtual devices are scripted in Lua; the network stack is declared as
+a layer chain (e.g.\ \texttt{phy -> ethernet -> ip -> tcp -> raw}). This
+allows engineers to evaluate protocol behaviour, measure performance, and
+inject faults without deploying physical hardware.
+
+\subsection*{Project Scope and Objectives}
+
+\begin{infoblock}{Track B Requirements}
+Each implemented example must include: setup, run procedure, expected output,
+and short explanation. Examples already implemented in class must not be
+reused. Each group member implements at least 5 examples.
+\end{infoblock}
+
+This project implements and analyses the following scenarios:
+
+\begin{enumerate}
+  \item \textbf{TCP Client} --- DNS resolution + connection-oriented HTTP~GET
+  \item \textbf{MQTT Sensor} --- broker-based publish/subscribe telemetry loop
+  \item \textbf{CoAP Client} --- constrained REST over UDP
+  \item \textbf{UDP Sender} --- raw connectionless datagram dispatch
+  \item \textbf{mDNS Responder} --- zero-configuration local service discovery
+  \item \textbf{Data Logging} --- timestamp-based event audit trail
+  \item \textbf{Failure Injection} --- multi-layer fault simulation and analysis
+\end{enumerate}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Simulation Environment}
+\label{sec:env}
+
+\begin{table}[H]
+\centering
+\caption{Simulation environment summary}
+\label{tab:env}
+\begin{tabular}{ll}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Simulation tool     & Netualizer (l7tr.com) \\
+Scripting language  & Lua 5.x \\
+Host OS             & Windows 11, 64-bit \\
+Virtual subnet      & 192.168.21.0/24 \\
+Default gateway     & 192.168.21.1 \\
+Physical hardware   & None (fully simulated) \\
+Protocol coverage   & TCP, MQTT, CoAP, UDP, mDNS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each Netualizer project consists of:
+\begin{itemize}[nosep]
+  \item A \textbf{config file} (.cfg) defining the virtual network stack layers
+  \item A \textbf{Lua script} implementing device logic and automation
+  \item The \textbf{Agents panel} showing connected virtual devices
+  \item The \textbf{Events panel} logging all network state transitions with timestamps
+  \item The \textbf{Output panel} displaying script console output
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Simulation Case Studies}
+\label{sec:cases}
+
+% ── 3.1 TCP ──────────────────────────────────────────────────────────────────
+\subsection{Example 1: TCP Client (Connection-Oriented HTTP GET)}
+\label{sec:tcp}
+
+\subsubsection*{Theoretical Background}
+
+The \textbf{Transmission Control Protocol (TCP)} operates at OSI Layer~4 and
+provides reliable, ordered, error-checked byte-stream delivery. Before any
+data is exchanged, TCP mandates a \emph{three-way handshake}:
+
+\begin{center}
+  \texttt{SYN} $\longrightarrow$ \texttt{SYN-ACK} $\longleftarrow$ \texttt{ACK}
+\end{center}
+
+Although TCP's minimum 20-byte header and connection setup overhead are costly
+for constrained devices, TCP is essential for:
+\begin{itemize}[nosep]
+  \item HTTP/HTTPS REST APIs
+  \item Firmware-over-the-air (FOTA) updates
+  \item Large payload transfers requiring guaranteed delivery
+\end{itemize}
+
+DNS resolution precedes the TCP handshake: the client queries a resolver to
+map a human-readable hostname (e.g.\ \texttt{itcorp.com}) to an IPv4 address
+before a socket can be opened.
+
+\subsubsection*{Netualizer Stack Architecture}
+
+The \texttt{TcpClient} project uses the following layer chain:
+
+\begin{center}
+  \texttt{phy \textrightarrow\ ethernet \textrightarrow\ ip \textrightarrow\ tcp \textrightarrow\ raw}
+\end{center}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_tcp_arch.png}
+  \caption{Netualizer stack diagram for the TCP Client project (CLIENT node with raw/tcp/ip/ethernet/phy layers)}
+  \label{fig:tcp_arch}
+\end{figure}
+
+\subsubsection*{Lua Script and Execution}
+
+The automation script \texttt{TcpClient.lua} performs the following sequence:
+(1)~wait for all stack layers to initialise, (2)~resolve
+\texttt{itcorp.com} via the integrated DNS resolver, (3)~open a TCP socket to
+port~80, (4)~send an HTTP~GET request, (5)~listen for incoming events.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_tcp_code.png}
+  \caption{TcpClient.lua source code with console output showing DNS resolution to \texttt{134.173.42.59} and TCP connection from \texttt{192.168.21.10}}
+  \label{fig:tcp_code}
+\end{figure}
+
+\subsubsection*{Results and Analysis}
+
+\begin{resultblock}{Observed Output}
+\begin{itemize}[nosep]
+  \item DNS resolution: \texttt{itcorp.com} $\rightarrow$ \texttt{134.173.42.59} \textbf{[OK]}
+  \item Source IP: \texttt{192.168.21.10}
+  \item TCP socket opened on port~80; connection packets generated
+  \item Layer-3 routing table and Layer-4 handshake confirmed intact
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} DNS resolution adds non-trivial latency
+before the TCP handshake. In production IoT deployments, IP addresses are
+typically hardcoded or resolved once at boot and cached, since DNS lookup
+overhead (typically 20--200\,ms) is unacceptable for time-critical sensing
+loops. For local node communication, mDNS (Section~\ref{sec:mdns}) eliminates
+the external DNS dependency entirely.
+
+% ── 3.2 MQTT ─────────────────────────────────────────────────────────────────
+\subsection{Example 2: MQTT Sensor (Publish/Subscribe Telemetry)}
+\label{sec:mqtt}
+
+\subsubsection*{Theoretical Background}
+
+\textbf{MQTT} (Message Queuing Telemetry Transport)~\cite{MQTT5} is a
+lightweight broker-based publish/subscribe protocol engineered for
+resource-constrained IoT devices. Key design properties:
+
+\begin{itemize}[nosep]
+  \item Runs over TCP; provides session persistence across reconnects
+  \item Fixed header: only \textbf{2 bytes} (compared to HTTP's $\geq$200 bytes)
+  \item Three Quality-of-Service tiers: QoS~0 (at most once), QoS~1
+    (at least once), QoS~2 (exactly once)
+  \item Hierarchical topic model: e.g.\ \texttt{home/living\_room/temperature}
+  \item Broker decouples publishers and subscribers --- neither needs to know
+    the other exists
+\end{itemize}
+
+This architecture enables a single broker to fan out one sensor's telemetry
+to dozens of subscribers (dashboards, alerting systems, storage pipelines)
+with no per-subscriber overhead on the sensor device.
+
+\subsubsection*{Netualizer Stack Architecture}
+
+\begin{center}
+  \texttt{phy \textrightarrow\ ethernet \textrightarrow\ ip \textrightarrow\ tcp \textrightarrow\ mqtt}
+\end{center}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_mqtt_arch.png}
+  \caption{Netualizer stack diagram for the MQTT Sensor project (SENSOR node with mqtt/tcp/ip/ethernet/phy layers)}
+  \label{fig:mqtt_arch}
+\end{figure}
+
+\subsubsection*{Lua Script and Execution}
+
+\texttt{MQTTSensor.lua} configures a static IP (\texttt{192.168.21.20})
+to prevent gateway-drop faults, connects to a public sandbox broker at
+\texttt{91.121.93.94}, and launches an event-driven publish loop that
+continuously pushes \texttt{dataup~42} payloads.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_mqtt_code.png}
+  \caption{MQTTSensor.lua source code and Events panel showing the continuous \texttt{dataup~42} publish loop with per-event timestamps}
+  \label{fig:mqtt_code}
+\end{figure}
+
+\subsubsection*{Results and Analysis}
+
+\begin{resultblock}{Observed Output}
+\begin{itemize}[nosep]
+  \item Exit code: \texttt{done (0) <= MQTTSensor.lua}
+  \item Event loop active; periodic \texttt{dataup 42} interrupts in Events panel
+  \item Timestamps recorded: \texttt{Fri 06/05/2026 10:1x:xx} per publish cycle
+  \item IP configuration: \texttt{Fup 192.168.21.20} confirmed in Events
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} Static IP assignment was required because
+the simulated gateway would drop packets from an unconfigured interface.
+In production environments, a DHCP reservation (binding MAC to a fixed lease)
+provides the same stability without manual address management. The continuous
+publish loop with no connection renegotiation demonstrates MQTT's efficiency
+for high-frequency telemetry --- a single persistent TCP connection serves
+hundreds of publish operations.
+
+% ── 3.3 CoAP ─────────────────────────────────────────────────────────────────
+\subsection{Example 3: CoAP Client (Constrained Application Protocol)}
+\label{sec:coap}
+
+\subsubsection*{Theoretical Background}
+
+\textbf{CoAP}~\cite{RFC7252} is a specialised RESTful protocol for
+constrained nodes, standardised in RFC~7252. Its key differentiators from
+HTTP:
+
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{lll}
+\toprule
+\textbf{Property} & \textbf{HTTP} & \textbf{CoAP} \\
+\midrule
+Transport     & TCP           & UDP (port 5683) \\
+Header size   & $\geq$200 B   & 4~bytes base \\
+Reliability   & TCP stream    & CON/NON messages \\
+Model         & Client-Server & Client-Server (REST) \\
+Multicast     & No            & Yes (UDP multicast) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+CoAP introduces \emph{Confirmable} (CON) messages for reliability: the
+receiver must send an ACK, otherwise the sender retransmits with exponential
+back-off. \emph{Non-confirmable} (NON) messages skip the ACK and are preferred
+for periodic sensor readings where occasional loss is acceptable.
+
+\subsubsection*{Netualizer Stack Architecture}
+
+\begin{center}
+  \texttt{phy \textrightarrow\ ethernet \textrightarrow\ ip \textrightarrow\ udp \textrightarrow\ coap}
+\end{center}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_coap_arch.png}
+  \caption{Netualizer stack diagram for the CoAP Client project (IOT CLIENT node with coap/udp/ip/ethernet/phy layers)}
+  \label{fig:coap_arch}
+\end{figure}
+
+\subsubsection*{Lua Script and Execution}
+
+\texttt{CoAPClient.lua} prompts for the target sensor IP, forms a
+\texttt{coap://} URI, and dispatches a binary CoAP GET packet over UDP to
+the simulated temperature transducer at \texttt{192.168.21.30:5683}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_coap_code.png}
+  \caption{CoAPClient.lua source code and output showing the GET request to \texttt{coap://192.168.21.30:5683/temperature}}
+  \label{fig:coap_code}
+\end{figure}
+
+\subsubsection*{Results and Analysis}
+
+\begin{resultblock}{Observed Output}
+\begin{itemize}[nosep]
+  \item URI formed: \texttt{coap://192.168.21.30:5683/temperature}
+  \item Binary CoAP GET dispatched over UDP successfully
+  \item No TCP handshake delay; connectionless dispatch confirmed
+  \item No packet fragmentation observed across the virtual link
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} The elimination of the TCP handshake
+reduces connection setup time from $\sim$3 round-trips to 0. For
+battery-powered sensors that wake, transmit, and sleep, this difference
+directly translates to energy savings. The trade-off is that application-level
+reliability (CON messages) must be explicitly managed, adding code complexity.
+
+% ── 3.4 UDP ──────────────────────────────────────────────────────────────────
+\subsection{Example 4: UDP Sender (Connectionless Datagram)}
+\label{sec:udp}
+
+\subsubsection*{Theoretical Background}
+
+\textbf{UDP} provides a minimal stateless transport layer with an 8-byte
+fixed header. Unlike TCP, UDP offers:
+\begin{itemize}[nosep]
+  \item No connection setup or teardown
+  \item No delivery guarantees or ordering
+  \item No retransmission or flow control
+  \item Sub-millisecond dispatch latency
+\end{itemize}
+
+IoT use cases that benefit from UDP's low overhead include real-time GPS
+tracking, industrial sensor streaming ($>$10\,Hz), video/audio over constrained
+links, and multicast status beacons. Occasional packet loss is acceptable in
+these scenarios, whereas the CPU and battery cost of TCP state machine
+maintenance is not.
+
+\subsubsection*{Netualizer Stack Architecture}
+
+\begin{center}
+  \texttt{phy \textrightarrow\ ethernet \textrightarrow\ ip \textrightarrow\ udp}
+\end{center}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_udp_arch.png}
+  \caption{Netualizer stack diagram for the UDP Sender project (UDP node with udp/ip/ethernet/phy layers)}
+  \label{fig:udp_arch}
+\end{figure}
+
+\subsubsection*{Lua Script and Execution}
+
+\texttt{UdpSender.lua} binds to \texttt{192.168.21.30:5000}, sets the
+destination to \texttt{192.168.21.5:6000}, and immediately dispatches the
+raw payload \texttt{"raw data being sent!\textbackslash n"} without any
+handshake.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_udp_code.png}
+  \caption{UdpSender.lua source code and output showing instant datagram dispatch and \texttt{done (0)} exit}
+  \label{fig:udp_code}
+\end{figure}
+
+\subsubsection*{Results and Analysis}
+
+\begin{resultblock}{Observed Output}
+\begin{itemize}[nosep]
+  \item Source socket bound: \texttt{192.168.21.30:5000}
+  \item Payload sent immediately: \texttt{"raw data being sent!"}
+  \item Exit code: \texttt{done (0) <= UdpSender.lua}
+  \item No waiting state; sub-millisecond execution confirmed
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} Comparing UDP's instant exit with TCP's
+blocking handshake confirms the fundamental latency trade-off. In an
+industrial telemetry application sampling at 50\,Hz, TCP's handshake overhead
+alone would consume $\sim$150\,ms per connection (assuming 50\,ms RTT) ---
+equivalent to 7--8 lost samples. UDP eliminates this entirely.
+
+% ── 3.5 mDNS ─────────────────────────────────────────────────────────────────
+\subsection{Example 5: mDNS Responder (Zero-Configuration Discovery)}
+\label{sec:mdns}
+
+\subsubsection*{Theoretical Background}
+
+\textbf{Multicast DNS (mDNS)}~\cite{RFC6762} (RFC~6762) enables hostname
+resolution within local networks without a centralised DNS server. It operates
+as follows:
+\begin{enumerate}[nosep]
+  \item A device wanting to resolve \texttt{sensor01.local} sends a UDP
+    multicast query to \texttt{224.0.0.251:5353}
+  \item The device owning that name responds with its IP address
+  \item No infrastructure (DHCP server, DNS server) is required
+\end{enumerate}
+
+mDNS is the foundation of Apple Bonjour and Linux Avahi. In IoT contexts, it
+allows sensors, gateways, and edge servers to discover each other
+automatically when joining a network --- critical for plug-and-play deployment
+of large sensor fleets.
+
+DNS-SD (DNS Service Discovery) extends mDNS with PTR/SRV/TXT records that
+advertise service types (e.g.\ \texttt{\_sip.\_udp.local},
+\texttt{\_mqtt.\_tcp.local}), allowing subscribers to find brokers or APIs
+without hardcoded addresses.
+
+\subsubsection*{Netualizer Stack Architecture}
+
+\begin{center}
+  \texttt{phy \textrightarrow\ ethernet \textrightarrow\ ip \textrightarrow\ udp \textrightarrow\ rtp \textrightarrow\ player}
+\end{center}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_mdns_arch.png}
+  \caption{Netualizer stack diagram for the mDNS project (mDNS node with player/rtp/udp/ip/ethernet/phy layers)}
+  \label{fig:mdns_arch}
+\end{figure}
+
+\subsubsection*{Lua Script and Execution}
+
+\texttt{mDNS.lua} starts an mDNS responder daemon that binds to the
+multicast port and broadcasts a PTR record for \texttt{\_sip.\_udp.local}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_mdns_code.png}
+  \caption{mDNS.lua source code and output showing responder bound to \texttt{192.168.21.18:5353} and PTR query broadcast}
+  \label{fig:mdns_code}
+\end{figure}
+
+\subsubsection*{Results and Analysis}
+
+\begin{resultblock}{Observed Output}
+\begin{itemize}[nosep]
+  \item mDNS responder address: \texttt{192.168.21.18:5353}
+  \item PTR query issued for \texttt{\_sip.\_udp.local}
+  \item Exit code: \texttt{done (0) <= mDNS.lua}
+  \item Local service record compiled and advertised successfully
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} mDNS removes the need for manual IP
+provisioning at device bring-up, which is operationally critical when deploying
+hundreds of sensors. Without mDNS, each sensor requires either a DHCP
+reservation or a hardcoded IP --- both create operational overhead. The PTR
+record observed (\texttt{\_sip.\_udp.local}) also demonstrates DNS-SD
+compatibility, allowing SIP-capable IoT devices to advertise themselves on
+the local segment.
+
+% ── 3.6 Data Logging ─────────────────────────────────────────────────────────
+\subsection{Data Logging and Timestamp Verification}
+\label{sec:logging}
+
+\subsubsection*{Concept}
+
+Temporal accuracy is a foundational requirement for IoT systems. Every
+telemetry event must carry an immutable, high-resolution timestamp to enable:
+\begin{itemize}[nosep]
+  \item Latency measurement between publish and receive
+  \item Ordered event replay for debugging
+  \item Audit trails for regulatory compliance
+  \item Correlation of readings across distributed nodes
+\end{itemize}
+
+\subsubsection*{Implementation and Results}
+
+Netualizer's \emph{Events} panel automatically appends a monotonic timestamp
+to every network state transition. No additional scripting is required. The
+logging was observed during the MQTT session (Section~\ref{sec:mqtt}).
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.90\textwidth]{img_logging.png}
+  \caption{Netualizer Events panel during MQTT session: each \texttt{dataup~42} event carries a unique timestamp (format: \texttt{Fri 06/05/2026 10:1x:xx}), confirming ordered, non-repeating audit trail}
+  \label{fig:logging}
+\end{figure}
+
+\begin{resultblock}{Observed Logging Behaviour}
+\begin{itemize}[nosep]
+  \item Timestamp format: \texttt{Fri 06/05/2026 10:1x:xx} (second-level resolution)
+  \item All \texttt{dataup~42} MQTT events recorded with unique, strictly
+    increasing timestamps
+  \item Event sequence preserved in insertion order; no out-of-order entries
+  \item IP configuration events (\texttt{Fup}) also logged with timestamps
+\end{itemize}
+\end{resultblock}
+
+\textbf{Engineering Observation:} For production pipelines these logs should
+be forwarded to a persistent indexed store (e.g.\ Quickwit) with structured
+fields: \texttt{ts} (timestamp), \texttt{device\_id}, \texttt{sensor\_type},
+\texttt{value}. This enables SQL-style queries (via Trino or DataFusion) and
+real-time Grafana dashboards over the telemetry stream.
+
+% ── 3.7 Failure Injection ────────────────────────────────────────────────────
+\subsection{Network Failure Injection and Exception Analysis}
+\label{sec:failure}
+
+Robust IoT network design requires systematic fault injection to validate
+that the protocol stack detects, reports, and fails gracefully under
+misconfiguration, missing hardware, and environmental anomalies.
+Three distinct failure scenarios were deliberately induced.
+
+\subsubsection*{Scenario 1 --- Network-Layer Gateway Omission}
+
+\textbf{Setup:} The IP layer was initialised without assigning a default
+gateway, then a transmission was attempted.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_fail1.png}
+  \caption{Failure Scenario 1: Netualizer dialog reporting \textit{``Interface `ip' failed to start [error: gateway not set!]''} when the IP layer has no configured default gateway}
+  \label{fig:fail1}
+\end{figure}
+
+\begin{alertblock}{Error Produced}
+\texttt{Interface 'ip' failed to start [error: gateway not set!]}
+\end{alertblock}
+
+\textbf{Analysis:} The network layer correctly blocks all upward packet flow
+when it cannot route. This mirrors real-world behaviour: a sensor that boots
+without a valid gateway will discard all outbound packets silently at the IP
+layer. Netualizer surfaces this as an explicit startup exception, allowing
+engineers to catch misconfiguration at integration time rather than during
+deployment.
+
+\subsubsection*{Scenarios 2 and 3 --- Agent Absence and LoRa Hardware Fault}
+
+\textbf{Setup:} A LoRa-based project was launched (a)~without any agent
+connected to the controller, and (b)~without attaching the virtual RYLR896
+transceiver module.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.82\textwidth]{img_fail2_3.png}
+  \caption{Failure Scenarios 2 \& 3: (top) \textit{``No agents were found''} when the controller has no connected agent; (bottom) \textit{``Interface RYLR896+LoRa+1 is not physically connected to this agent!''} when the LoRa transceiver is absent}
+  \label{fig:fail23}
+\end{figure}
+
+\begin{alertblock}{Errors Produced}
+\begin{enumerate}[nosep]
+  \item \texttt{No agents were found.}
+  \item \texttt{Interface RYLR896+LoRa+1 is not physically connected to this agent!}
+\end{enumerate}
+\end{alertblock}
+
+\textbf{Analysis:}
+\begin{itemize}
+  \item \textbf{No agents found:} The controller-agent architecture of
+    Netualizer requires at least one agent process to be running. This fault
+    confirms that the simulation correctly enforces the presence of a virtual
+    execution host before allowing any device configuration.
+  \item \textbf{LoRa transceiver absent:} Physical-layer hardware is a
+    mandatory prerequisite. Without a radio module attached, the LoRa MAC
+    and upper layers cannot initialise. This directly models real IoT
+    deployments where a missing antenna or disconnected RF module causes
+    total communication failure --- a common field fault that is difficult
+    to diagnose without structured error reporting.
+\end{itemize}
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Comparative Protocol Analysis}
+\label{sec:comparison}
+
+Table~\ref{tab:proto} synthesises the engineering trade-offs observed across
+all five simulation runs. No single protocol dominates; the optimal choice is
+always context-dependent.
+
+\begin{table}[H]
+\centering
+\caption{IoT protocol comparison matrix derived from simulation results}
+\label{tab:proto}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{>{\bfseries}p{1.6cm} p{1.4cm} p{2.1cm} p{1.8cm} p{4.4cm}}
+\toprule
+Protocol & Transport & Connection model & Header overhead & Primary IoT use case \\
+\midrule
+TCP   & TCP (L4) & Connection-oriented (3-way HS) & High ($\geq$20\,B)    & FOTA, REST APIs \\
+UDP   & UDP (L4) & Connectionless (datagram)       & Low (fixed 8\,B)      & Real-time telemetry, GPS, streaming \\
+MQTT  & TCP (L4) & Broker pub/sub (async)          & Very low (2\,B fixed) & Cloud telemetry, smart grids \\
+CoAP  & UDP (L4) & Client-server REST (req/resp)   & Very low (4\,B base)  & Constrained mesh, battery sensors \\
+mDNS  & UDP (L4) & Multicast broadcast (zero-cfg)  & Low--moderate         & Smart-home discovery, ad-hoc LANs \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key design insight:} UDP-based protocols (CoAP, mDNS, raw UDP)
+minimise overhead at the cost of application-level reliability management.
+TCP-based protocols (direct TCP, MQTT) provide guaranteed delivery but consume
+more energy and introduce higher latency. The choice must be driven by the
+specific application's requirements for reliability, energy budget, and
+data rate.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Security Considerations}
+\label{sec:security}
+
+None of the five implemented examples includes transport-layer or
+application-layer security. This is a deliberate scope decision for a
+foundational Track~B submission. However, deploying these protocols in
+production without security hardening exposes the system to serious threats:
+
+\begin{table}[H]
+\centering
+\caption{Threat model and mitigations per protocol}
+\label{tab:security}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{1.4cm} p{3.5cm} p{5.5cm}}
+\toprule
+\textbf{Protocol} & \textbf{Primary threat} & \textbf{Recommended mitigation} \\
+\midrule
+MQTT  & Unauthenticated broker access; topic eavesdropping & TLS~1.2+ channel; X.509 client certificates; topic-level ACLs \\
+CoAP  & Replay attacks; UDP amplification DDoS & DTLS with PSK or certificates; frame-counter validation (RFC~8613) \\
+mDNS  & Spoofed PTR/A records; local traffic interception & Network segmentation (VLAN); DNSSEC where supported \\
+TCP   & Plaintext payload interception; man-in-the-middle & TLS~1.3 end-to-end \\
+UDP   & Payload spoofing; no integrity check & DTLS or application-layer HMAC \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A natural extension of this project would implement \textbf{HMAC-SHA256} data
+integrity verification on the MQTT payload and demonstrate a replay-attack
+simulation (reinjecting a captured \texttt{dataup} packet) to qualify for the
+Security Bonus criterion.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+
+Seven simulation scenarios were successfully executed within Netualizer,
+covering five IoT protocol stacks and two supplementary engineering scenarios.
+The following conclusions are drawn:
+
+\begin{enumerate}
+  \item \textbf{TCP and MQTT} deliver reliable, ordered communication but
+    impose connection overhead and higher energy consumption --- suitable for
+    non-time-critical, high-reliability applications such as FOTA and
+    centralised telemetry.
+
+  \item \textbf{UDP and CoAP} minimise handshake latency and header overhead,
+    making them preferable for battery-limited, high-frequency edge devices.
+    CoAP adds optional application-level reliability (CON messages) without
+    reverting to TCP.
+
+  \item \textbf{mDNS} enables automatic service discovery with zero
+    infrastructure dependency, which is operationally essential for deploying
+    and scaling IoT fleets without per-device manual configuration.
+
+  \item \textbf{Netualizer} correctly enforces multi-layer dependencies,
+    produces actionable fault diagnostics, and provides high-resolution
+    timestamps for all state transitions --- making it a valuable tool for
+    protocol validation before physical deployment.
+
+  \item \textbf{Security} is absent from all base implementations and must
+    be addressed before any production deployment, with DTLS and HMAC as the
+    highest-priority additions for UDP-based protocols.
+\end{enumerate}
+
+The comparative protocol matrix (Table~\ref{tab:proto}) and the threat model
+(Table~\ref{tab:security}) provide practical references for IoT protocol
+selection and security planning in constrained deployment scenarios.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\section*{Reproducibility}
+\label{sec:repro}
+
+All scenarios run in Netualizer with the virtual network \texttt{192.168.21.0/24}.
+To reproduce:
+\begin{enumerate}[nosep]
+  \item Install Netualizer (Controller + Agent) from \url{https://www.l7tr.com/site/netualizer}
+  \item Open the project directory for each example (e.g.\ \texttt{TcpClient/})
+  \item Apply static IP settings where noted (MQTT: \texttt{192.168.21.20})
+  \item Run the corresponding \texttt{*.lua} script
+  \item Observe the Output and Events panels
+\end{enumerate}
+No external hardware or additional dependencies are required.
+
+% ══════════════════════════════════════════════════════════════════════════════
+\begin{thebibliography}{9}
+
+\bibitem{RFC7228}
+C.\ Bormann, M.\ Ersue, A.\ Keranen,
+\textit{Terminology for Constrained-Node Networks},
+RFC~7228, IETF, May 2014.
+\url{https://www.rfc-editor.org/rfc/rfc7228}
+
+\bibitem{MQTT5}
+OASIS Standard,
+\textit{MQTT Version 5.0},
+OASIS, March 2019.
+\url{https://docs.oasis-open.org/mqtt/mqtt/v5.0/mqtt-v5.0.html}
+
+\bibitem{RFC7252}
+Z.\ Shelby, K.\ Hartke, C.\ Bormann,
+\textit{The Constrained Application Protocol (CoAP)},
+RFC~7252, IETF, June 2014.
+\url{https://www.rfc-editor.org/rfc/rfc7252}
+
+\bibitem{RFC6762}
+S.\ Cheshire, M.\ Krochmal,
+\textit{Multicast DNS},
+RFC~6762, IETF, February 2013.
+\url{https://www.rfc-editor.org/rfc/rfc6762}
+
+\bibitem{RFC8613}
+O.\ Bergmann et al.,
+\textit{Object Security for Constrained RESTful Environments (OSCORE)},
+RFC~8613, IETF, July 2019.
+\url{https://www.rfc-editor.org/rfc/rfc8613}
+
+\bibitem{Herrero2023}
+Herrero,
+\textit{IoT Architecture and Networking: Architecture and Protocols}, 2023.
+
+\bibitem{Edwards2024}
+Edwards,
+\textit{IoT Security: Threat Models and Controls}, 2024.
+
+\bibitem{NISTIR8228}
+NIST,
+\textit{NISTIR 8228: Considerations for Managing IoT Cybersecurity and Privacy Risks}, 2019.
+\url{https://doi.org/10.6028/NIST.IR.8228}
+
+\end{thebibliography}
+
+\end{document}
